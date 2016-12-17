@@ -26,12 +26,12 @@ Provides a parser for latitude and longitude strings. Handles various formats fo
     {39.1371, -88.65}
 
     iex> LatLong.parse "39.1371°E", "88.65°W"
-    {:error, -88.65}
+    {:error, "Error Parsing Latitude"}
 
   The second example above returns an error since latitude is NS and E was specified. The correct function call is:
 
     iex> LatLong.parse "39.1371°N", "88.65°W"
-    {:error, -88.65}
+    {39.1371, -88.65}
 
 ## Road Map
 

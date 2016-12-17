@@ -7,9 +7,16 @@ defmodule Latlong.Mixfile do
      elixir: "~> 1.3",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     description: "Module for parsing latitude longitude data",
+     description: "Latitude, Longitude Parser",
      package: package,
-     deps: deps()]
+     deps: deps(),
+
+     # Docs
+     name: "latlong",
+     source_url: "https://github.com/bengtson/latlong",
+     docs: [main: "LatLong", # The main page in the docs
+            extras: ["README.md"]]]
+
   end
 
   # Configuration for the OTP application
@@ -39,6 +46,6 @@ end
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    []
+    [{:ex_doc, "~> 0.14", only: :dev}]
   end
 end

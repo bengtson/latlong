@@ -1,6 +1,9 @@
 defmodule LatLong do
   @moduledoc """
-  A really nice parsing of all the ways that a longitude or latitude may be specified. Comments and suggestions on how this might have been better written are welcome. The following lat long formats are allowed ... all are equivalent:
+  A parser for all the ways that a longitude or latitude may be
+  specified. Comments and suggestions on how this might have been better
+  written are welcome. The following lat long formats are allowed ... all are
+  equivalent:
 
   - 38.8977, -77.0365
   - 38° 53' 51.635" N, 77° 2' 11.507" W
@@ -28,40 +31,47 @@ defmodule LatLong do
 
   ## Parsing
 
-  The strings are parsed with a state machine checking the next part of the string, saving the various parts in a map. Each pass of the state machine provides the next Float if available and the next grapheme. The state machine lets the call fall to the appropriate state handler and then the next part is examined until there isn't anything left in the string.
+  The strings are parsed with a state machine checking the next part of the
+  string, saving the various parts in a map. Each pass of the state machine
+  provides the next Float if available and the next grapheme. The state machine
+  lets the call fall to the appropriate state handler and then the next part is
+  examined until there isn't anything left in the string.
   """
 
   @type latitude :: number
   @type longitude :: number
+  @type message :: String.t
 
   @doc """
-  Parses string representations of a latitude and longitude into decimals. The latitude and longitude must be provided as single string argument with a separating comma. The return is { :ok, latitude, longitude } or { :error, message }.
+  Parses string representations of a latitude and longitude into decimals. The
+  latitude and longitude must be provided as single string argument with a
+  separating comma.
   """
-  @spec parse(String.t) :: { latitude, longitude }
+
+  @spec parse(String.t) :: { latitude, longitude } | { :error, message }
   def parse latlong do
     [ latitude, longitude ] = String.split latlong, ","
     parse latitude, longitude
   end
 
   @doc """
-  Parses string representations of a latitude and longitude into decimals. The latitude and longitude must be provided as string arguments. The return is { :ok, latitude, longitude } or { :error, message }.
+  Parses string representations of a latitude and longitude into decimals. The
+  latitude and longitude must be provided as string arguments.
   """
 
-  @spec parse(String.t, String.t) :: { latitude, longitude }
+  @spec parse(String.t, String.t) :: { latitude, longitude } | { :error, message }
   def parse latitude, longitude do
     latitude_value = part_to_decimal_position latitude, :latitude
     longitude_value = part_to_decimal_position longitude, :longitude
-    latitude_value = cond do
-      latitude_value < -90.0 -> :error
-      latitude_value > +90.0 -> :error
-      true -> latitude_value
+    cond do
+      latitude_value == :error -> {:error, "Error Parsing Latitude"}
+      latitude_value < -90.0 -> {:error, "Latitude < -90.0°"}
+      latitude_value > +90.0 -> {:error, "Latitude > +90.0°"}
+      longitude == :error -> {:error, "Error Parsing Longitude"}
+      longitude_value < -180.0 -> {:error, "Longitude < -180.0°"}
+      longitude_value > +180.0 -> {:error, "Longitude > +180.0°"}
+      true -> {latitude_value, longitude_value}
     end
-    longitude_value = cond do
-      longitude_value < -180.0 -> :error
-      longitude_value > +180.0 -> :error
-      true -> longitude_value
-    end
-    {latitude_value, longitude_value}
   end
 
   # Called to convert latitude or longitude. 'type' is either :latitude or
